@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ketamin an der Synapse – Lernseite</title>
+  <style>
+    :root {
+      --bg1: #fff7f7;
+      --bg2: #ffdede;
+      --bg3: #f2b5b5;
+      --card: rgba(255,255,255,0.94);
+      --text: #2c2415;
+      --muted: #6b5d37;
+      --border: #e8c2c2;
+      --green-bg: #ecfdf5;
+      --green-text: #166534;
+      --red-bg: #fef2f2;
+      --red-text: #991b1b;
+      --yellow-soft: #fff1f1;
+      --button: #7c5c14;
+      --button-hover: #694c0d;
+      --button-secondary: #f6e2e2;
+      --drop-bg: #fffef7;
+      --drop-active: #fff3bf;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at center, var(--bg1) 0%, var(--bg2) 58%, var(--bg3) 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: 0 10px 30px rgba(130, 60, 60, 0.12);
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(232, 194, 194, 0.85);
+    }
+
+    h1 { margin: 0 0 10px; font-size: clamp(28px, 4vw, 40px); }
+    h2, h3 { color: var(--text); }
+    p { line-height: 1.55; }
+    .muted { color: var(--muted); }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .reset-wrap {
+      margin-left: auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .video-card h2 { margin-top: 0; font-size: 22px; }
+
+    video {
+      width: 100%;
+      border-radius: 20px;
+      background: #000;
+      border: 1px solid var(--border);
+    }
+
+    .controls {
+      margin-top: 14px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 16px;
+      padding: 12px 18px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.12s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    .primary { background: var(--button); color: white; }
+    .primary:hover { background: var(--button-hover); }
+    .secondary { background: var(--button-secondary); color: var(--text); }
+    .selected { outline: 3px solid #c89e2b; }
+
+    .feedback, .result, .gap-feedback {
+      border-radius: 24px;
+      padding: 20px;
+      margin-top: 18px;
+      display: none;
+    }
+
+    .feedback.show, .result.show, .gap-feedback.show { display: block; }
+    .feedback.correct, .result.correct, .gap-feedback.correct { background: var(--green-bg); color: var(--green-text); }
+    .feedback.wrong, .result.wrong, .gap-feedback.wrong { background: var(--red-bg); color: var(--red-text); }
+
+    .questions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .question h3 { margin-top: 0; font-size: 20px; }
+
+    .option {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .option.active { border-color: #8a6817; background: #fff9e6; }
+
+    .task-intro {
+      margin: 0 0 18px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: var(--yellow-soft);
+      border: 1px solid var(--border);
+      font-weight: 600;
+    }
+
+    .bonus-title {
+      margin-top: 0;
+      margin-bottom: 14px;
+    }
+
+    .cloze-wrapper {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .cloze-text {
+      font-size: 18px;
+      line-height: 2.1;
+    }
+
+    .blank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 145px;
+      min-height: 42px;
+      padding: 6px 12px;
+      margin: 0 4px;
+      border-radius: 14px;
+      border: 2px dashed #c8b15f;
+      background: var(--drop-bg);
+      vertical-align: middle;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .blank.active-drop {
+      background: var(--drop-active);
+      border-color: #aa8731;
+    }
+
+    .blank.filled {
+      border-style: solid;
+      color: var(--text);
+    }
+
+    .word-bank {
+      background: var(--button-secondary);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 18px;
+      min-height: 220px;
+    }
+
+    .word-bank h3 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+
+    .word-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .word {
+      background: white;
+      border: 1px solid #dbc774;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: grab;
+      user-select: none;
+      font-weight: 700;
+      box-shadow: 0 2px 10px rgba(120, 93, 24, 0.08);
+    }
+
+    .word.used {
+      opacity: 0.45;
+    }
+
+    .inline-reset {
+      margin-left: 8px;
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: #f6edd2;
+    }
+
+    @media (max-width: 980px) {
+      .grid, .questions, .cloze-wrapper {
+        grid-template-columns: 1fr;
+      }
+      .reset-wrap {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .cloze-text {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <div>
+          <h1>Gruppe 2: Wirkmechanismus von Ketamin</h1>
+          <p>Überprüfe, ob du den Mechanismus an der Synapse richtig verstanden hast, indem du die Aufgaben erarbeitest.</p>
+        </div>
+        <div class="reset-wrap">
+          <button class="secondary" onclick="resetAll()">Alles zurücksetzen</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="task-intro">Aufgabe 1: Vergleiche beide Videos. Eines zeigt den richtigen Wirkmechanismus von Ketamin an der Synapse. Wähle den richtigen Mechanismus aus.</p>
+      <div class="grid">
+        <div class="card video-card" style="margin-bottom:0;">
+          <h2>Video 1</h2>
+          <video id="videoA" controls src="ketamin_richtig.mp4" type="video/mp4"></video>
+          <div class="controls">
+            <button id="chooseA" class="secondary" onclick="choose('A')">Auswählen</button>
+          </div>
+        </div>
+
+        <div class="card video-card" style="margin-bottom:0;">
+          <h2>Video 2</h2>
+          <video id="videoB" controls src="ketamin_falsch.mp4" type="video/mp4"></video>
+          <div class="controls">
+            <button id="chooseB" class="secondary" onclick="choose('B')">Auswählen</button>
+          </div>
+        </div>
+      </div>
+      <div id="feedback" class="feedback"></div>
+    </div>
+
+    <div class="card">
+      <p class="task-intro">Aufgabe 2: Wähle die richtigen Antworten aus. Pro Frage ist eine Antwort richtig.</p>
+      <div class="questions" style="margin-top:0;">
+        <div class="card question" id="q1" style="margin-bottom:0;">
+          <h3>Welche Wirkung kann Ketamin beim Menschen haben?</h3>
+          <button class="option" onclick="selectOption('q1',0,this)">Es kann Wahrnehmung und Schmerzempfinden verändern bzw. lindern.</button>
+          <button class="option" onclick="selectOption('q1',1,this)">Es steigert dauerhaft die Konzentrationsfähigkeit des Gehirns.</button>
+          <button class="option" onclick="selectOption('q1',2,this)">Es beschleunigt die Reizweiterleitung zwischen Nervenzellen.</button>
+          <button class="option" onclick="selectOption('q1',3,this)">Es erhöht dauerhaft die Muskelkraft des Körpers.</button>
+          <div class="controls">
+            <button class="primary" onclick="checkQuestion('q1',0)">Prüfen</button>
+            <button class="secondary" onclick="resetQuestion('q1')">Zurücksetzen</button>
+          </div>
+          <div class="result" id="q1-result"></div>
+        </div>
+
+        <div class="card question" id="q2" style="margin-bottom:0;">
+          <h3>Wie wirkt Ketamin an der Synapse?</h3>
+          <button class="option" onclick="selectOption('q2',0,this)">Es verstärkt die Ausschüttung von Neurotransmittern.</button>
+          <button class="option" onclick="selectOption('q2',1,this)">Es blockiert bestimmte Rezeptoren und stört dadurch die Signalweiterleitung.</button>
+          <button class="option" onclick="selectOption('q2',2,this)">Es hat keine Wirkung auf das Nervensystem.</button>
+          <button class="option" onclick="selectOption('q2',3,this)">Es zerstört die Synapse vollständig.</button>
+          <div class="controls">
+            <button class="primary" onclick="checkQuestion('q2',1)">Prüfen</button>
+            <button class="secondary" onclick="resetQuestion('q2')">Zurücksetzen</button>
+          </div>
+          <div class="result" id="q2-result"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="bonus-task">
+      <p class="task-intro">Bonus: Ergänze die Lücken, indem du die richtigen Begriffe in die Lücken ziehst.</p>
+      <div class="cloze-wrapper">
+        <div>
+          <div class="cloze-text" id="cloze-text">
+            Das Endknöpfchen, der synaptischer Spalt und der Dendrit werden als
+            <span class="blank" data-answer="Synapse" onclick="clearBlank(this)"></span>
+            zusammengefasst. Hier wird ein
+            <span class="blank" data-answer="elektrischer Impuls" onclick="clearBlank(this)"></span>
+            von einer Zelle zur nächsten weitergeleitet. Dabei werden sogenannte
+            <span class="blank" data-answer="Neurotransmitter" onclick="clearBlank(this)"></span>
+            in den synaptischen Spalt losgelassen. Dort können sie an die
+            <span class="blank" data-answer="Rezeptoren" onclick="clearBlank(this)"></span>
+            anbinden. Dadurch lösen sie einen elektrischen Impuls in der Nachbarzelle aus. Dass die Neurotransmitter passgenau auf die Rezeptoren passen, nennt man das
+            <span class="blank" data-answer="Schlüssel-Schloss-Prinzip" onclick="clearBlank(this)"></span>.
+            Die Bindung wird unter anderem durch
+            <span class="blank" data-answer="Enzyme" onclick="clearBlank(this)"></span>
+            aufgetrennt. Eine Droge wie Ketamin wirkt auch an den Synapsen. Man nennt Stoffe, die an der Synapse wirken und die Reizweiterleitung beeinträchtigen,
+            <span class="blank" data-answer="Synapsengifte" onclick="clearBlank(this)"></span>.
+          </div>
+          <div class="controls">
+            <button class="primary" onclick="checkCloze()">Prüfen</button>
+            <button class="secondary" onclick="resetCloze()">Zurücksetzen</button>
+          </div>
+          <div id="cloze-feedback" class="gap-feedback"></div>
+        </div>
+
+        <div class="word-bank">
+          <h3>Wortwolke</h3>
+          <p class="muted">Ziehe die Begriffe in die passenden Lücken.</p>
+          <div class="word-list" id="word-bank">
+            <div class="word" draggable="true" data-word="Rezeptoren">Rezeptoren</div>
+            <div class="word" draggable="true" data-word="Synapsengifte">Synapsengifte</div>
+            <div class="word" draggable="true" data-word="elektrischer Impuls">elektrischer Impuls</div>
+            <div class="word" draggable="true" data-word="Enzyme">Enzyme</div>
+            <div class="word" draggable="true" data-word="Neurotransmitter">Neurotransmitter</div>
+            <div class="word" draggable="true" data-word="Synapse">Synapse</div>
+            <div class="word" draggable="true" data-word="Schlüssel-Schloss-Prinzip">Schlüssel-Schloss-Prinzip</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const answers = { q1: null, q2: null };
+    let draggedWord = null;
+
+    function choose(letter) {
+      document.getElementById('chooseA').classList.remove('selected');
+      document.getElementById('chooseB').classList.remove('selected');
+      document.getElementById('choose' + letter).classList.add('selected');
+
+      const feedback = document.getElementById('feedback');
+      feedback.classList.add('show');
+
+      if (letter === 'B') {
+        feedback.className = 'feedback show correct';
+        feedback.innerHTML = '<strong>Richtig!</strong><br>Dieses Video zeigt den richtigen Mechanismus: Ketamin blockiert bestimmte Rezeptoren und stört dadurch die Reizweiterleitung an der Synapse.';
+      } else {
+        feedback.className = 'feedback show wrong';
+        feedback.innerHTML = '<strong>Leider nicht richtig.</strong><br>Dieses Video zeigt nicht den korrekten Wirkmechanismus von Ketamin an der Synapse.';
+      }
+    }
+
+    function resetAll() {
+      document.getElementById('videoA').pause();
+      document.getElementById('videoB').pause();
+      document.getElementById('videoA').currentTime = 0;
+      document.getElementById('videoB').currentTime = 0;
+      document.getElementById('chooseA').classList.remove('selected');
+      document.getElementById('chooseB').classList.remove('selected');
+      const feedback = document.getElementById('feedback');
+      feedback.className = 'feedback';
+      feedback.innerHTML = '';
+      resetQuestion('q1');
+      resetQuestion('q2');
+      resetCloze();
+    }
+
+    function selectOption(qid, index, el) {
+      answers[qid] = index;
+      document.querySelectorAll('#' + qid + ' .option').forEach(btn => btn.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function checkQuestion(qid, correctIndex) {
+      const result = document.getElementById(qid + '-result');
+      if (answers[qid] === null) {
+        result.className = 'result show wrong';
+        result.textContent = 'Bitte zuerst eine Antwort auswählen.';
+        return;
+      }
+      if (answers[qid] === correctIndex) {
+        result.className = 'result show correct';
+        result.textContent = 'Richtig.';
+      } else {
+        const correctText = document.querySelectorAll('#' + qid + ' .option')[correctIndex].textContent;
+        result.className = 'result show wrong';
+        result.textContent = 'Nicht richtig.';
+      }
+    }
+
+    function resetQuestion(qid) {
+      answers[qid] = null;
+      document.querySelectorAll('#' + qid + ' .option').forEach(btn => btn.classList.remove('active'));
+      const result = document.getElementById(qid + '-result');
+      result.className = 'result';
+      result.textContent = '';
+    }
+
+    document.querySelectorAll('.word').forEach(word => {
+      word.addEventListener('dragstart', (e) => {
+        draggedWord = word;
+        e.dataTransfer.setData('text/plain', word.dataset.word);
+      });
+    });
+
+    document.querySelectorAll('.blank').forEach(blank => {
+      blank.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        blank.classList.add('active-drop');
+      });
+
+      blank.addEventListener('dragleave', () => {
+        blank.classList.remove('active-drop');
+      });
+
+      blank.addEventListener('drop', (e) => {
+        e.preventDefault();
+        blank.classList.remove('active-drop');
+        if (!draggedWord) return;
+
+        if (blank.dataset.filledWord) {
+          returnWordToBank(blank.dataset.filledWord);
+        }
+
+        const wordText = draggedWord.dataset.word;
+        blank.textContent = wordText;
+        blank.dataset.filledWord = wordText;
+        blank.classList.add('filled');
+        markWordUsed(wordText, true);
+      });
+    });
+
+    function markWordUsed(wordText, used) {
+      const wordEl = Array.from(document.querySelectorAll('.word')).find(el => el.dataset.word === wordText);
+      if (!wordEl) return;
+      if (used) {
+        wordEl.classList.add('used');
+        wordEl.style.pointerEvents = 'none';
+      } else {
+        wordEl.classList.remove('used');
+        wordEl.style.pointerEvents = 'auto';
+      }
+    }
+
+    function returnWordToBank(wordText) {
+      markWordUsed(wordText, false);
+    }
+
+    function clearBlank(blank) {
+      if (!blank.dataset.filledWord) return;
+      returnWordToBank(blank.dataset.filledWord);
+      blank.textContent = '';
+      blank.dataset.filledWord = '';
+      blank.classList.remove('filled');
+    }
+
+    function checkCloze() {
+      const blanks = document.querySelectorAll('.blank');
+      const feedback = document.getElementById('cloze-feedback');
+      let correct = 0;
+      let filled = 0;
+      const missing = [];
+      const wrong = [];
+
+      blanks.forEach(blank => {
+        const userWord = (blank.dataset.filledWord || '').trim();
+        const answer = blank.dataset.answer.trim();
+        if (userWord) filled++;
+        if (userWord === answer) {
+          correct++;
+        } else if (!userWord) {
+          missing.push(answer);
+        } else {
+          wrong.push(userWord + ' → richtig wäre: ' + answer);
+        }
+      });
+
+      const total = blanks.length;
+      feedback.classList.add('show');
+
+      if (correct === total) {
+        feedback.className = 'gap-feedback show correct';
+        feedback.innerHTML = '<strong>Sehr gut!</strong><br>Du hast alle ' + total + ' Lücken richtig ausgefüllt.';
+        return;
+      }
+
+      feedback.className = 'gap-feedback show wrong';
+      let text = '<strong>Dein Ergebnis:</strong><br>Du hast ' + correct + ' von ' + total + ' Lücken richtig gelöst.';
+
+      if (filled < total) {
+        text += '<br><br>Es fehlen noch: ' + missing.join(', ') + '.';
+      }
+      if (wrong.length > 0) {
+        text += '<br><br>Nicht passend eingesetzt: ' + wrong.join(' | ') + '.';
+      }
+      if (correct < total) {
+        text += '<br><br>Du kannst die Aufgabe verbessern und dann erneut auf „Prüfen“ klicken.';
+      }
+      feedback.innerHTML = text;
+    }
+
+    function resetCloze() {
+      document.querySelectorAll('.blank').forEach(blank => {
+        blank.textContent = '';
+        blank.dataset.filledWord = '';
+        blank.classList.remove('filled', 'active-drop');
+      });
+      document.querySelectorAll('.word').forEach(word => {
+        word.classList.remove('used');
+        word.style.pointerEvents = 'auto';
+      });
+      const feedback = document.getElementById('cloze-feedback');
+      feedback.className = 'gap-feedback';
+      feedback.innerHTML = '';
+    }
+  </script>
+</body>
+</html>
